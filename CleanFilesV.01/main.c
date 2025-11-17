@@ -90,8 +90,8 @@ int main(int ac, char **av)
 
         }
 
-        printf("\n======================\n");
-        printf("======================\n\n");
+        printf("\n=======================\n");
+        printf("=======================\n\n");
 
         printf("Dossier --> %d\n", dir_count);
         printf("Fichier --> %d\n", file_count);
@@ -99,8 +99,8 @@ int main(int ac, char **av)
         printf("TAILLE TOTAL : %lld bytes\n", total_size);
         printf("Inutile taille --> %lld\n", unused_size);
 
-        printf("\n======================\n");
-        printf("======================\n");
+        printf("\n=======================\n");
+        printf("=======================\n");
 
         closedir(dir);
     }
