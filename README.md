@@ -1,4 +1,7 @@
 # CleanFiles — Directory Analysis & Optimization Tool
+------
+*Work in progress*
+------
 
 CleanFiles is a C-based system utility designed to scan folders, detect unnecessary files, and prepare automated cleanup actions.
 It forms the foundation of a larger optimization suite called DEXPACK (DXP).
