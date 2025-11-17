@@ -1,5 +1,4 @@
 # CleanFiles — Directory Analysis & Optimization Tool
-------
 *Work in progress*
 ------
 
