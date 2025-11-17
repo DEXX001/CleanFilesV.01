@@ -1,41 +1,42 @@
-CleanFiles — Directory Analysis & Optimization Tool
+# CleanFiles — Directory Analysis & Optimization Tool
 
-CleanFiles is a system utility fully developed in C.
-Its purpose is simple and efficient: scan a directory, identify unnecessary files, and prepare future automated actions.
-It serves as the foundation of a larger suite of optimization tools that will form DEXPACK (DXP).
+CleanFiles is a C-based system utility designed to scan folders, detect unnecessary files, and prepare automated cleanup actions.
+It forms the foundation of a larger optimization suite called DEXPACK (DXP).
 
-🔍 Core Features
+### Core Features
+• Fast directory scanning
 
-Fast directory scanning
-Efficiently traverses a folder (and subfolders).
+Efficiently traverses a folder (and its subfolders).
 
-Full content listing
-Retrieves all files and subdirectories with their basic metadata.
+• Full content listing
 
-Detailed file analysis
-Uses stat() and struct dirent to extract type, size, timestamps, and other properties.
+Retrieves all files and subdirectories with their metadata.
 
-Detection of useless or heavy files
-Identifies temporary files, duplicates, large files, and items that can be cleaned.
+• Detailed file analysis
 
-Foundation for upcoming automation
+Uses stat() and struct dirent to extract type, size, timestamps, and more.
+
+• Detection of useless or heavy files
+
+Identifies temporary files, duplicates, large files, and unnecessary items.
+
+• Foundation for future automation
+
 Lays the groundwork for:
-• automatic deletion
-• archiving
-• advanced logging
-• future GUI versions
 
-🛠️ Version Roadmap
+automatic deletion
 
+archiving
+
+advanced logging
+
+future GUI versions
+
+### Version Roadmap
 V0.x — CLI Version (current)
-✔ Directory scanning
-✔ File analysis (type, size, etc.)
-✔ Detection of unnecessary files
-➤ Solid technical base for upcoming features
 
-V1 — Full Optimization Engine
-• Advanced detection rules
-• Cleaner terminal output
-• Configurable filters
-• Basic logs
-• Ready for integration into DEXPACK
+✔ Directory scanning
+✔ File analysis (type, size, timestamps)
+✔ Unnecessary file detection
+➡ Strong technical base for upcoming versions
+
