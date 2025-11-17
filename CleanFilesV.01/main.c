@@ -83,11 +83,7 @@ int main(int ac, char **av)
             {
                 printf("%s [OTHER]\n", entry->d_name);
             }
-
             
-
-            
-
         }
 
         printf("\n=======================\n");
