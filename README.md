@@ -26,13 +26,7 @@ Identifies temporary files, duplicates, large files, and unnecessary items.
 
 Lays the groundwork for:
 
-automatic deletion
-
-archiving
-
-advanced logging
-
-future GUI versions
+automatic deletion, archiving, advanced logging, future GUI versions
 
 ### Version Roadmap
 V0.x — CLI Version (current)
