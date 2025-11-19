@@ -50,6 +50,7 @@ void scan_dir(const char * path,
             (*dir_count)++;
             scan_dir(fullpath, total_size, unused_size, 
                      dir_count, file_count, unused_count);
+            
         }
 
         else if (S_ISREG(st.st_mode)) 
