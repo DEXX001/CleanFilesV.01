@@ -5,13 +5,30 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "scan.h"
+
+void print_indent(int niveau)
+{
+    for (int i = 0; i < niveau; i++)
+    {
+        printf("    ");
+    }
+    
+}
+
+void afficher_element(const char *type, const char *nom, int niveau)
+{
+    print_indent(niveau);
+    printf("%s : %s\n", type, nom);
+}
 
 void scan_dir(const char * path,
-              long long *total_size,
-              long long *unused_size,
-              int *dir_count,
-              int *file_count,
-              int *unused_count)
+              long long * total_size,
+              long long * unused_size,
+              int * dir_count,
+              int * file_count,
+              int * unused_count,
+              int deepth)
 {
     DIR *dir = opendir(path);
     struct stat st;
@@ -46,10 +63,10 @@ void scan_dir(const char * path,
 
         if (S_ISDIR(st.st_mode))
         {
-            printf("[DIR] -- > %s\n", entry->d_name);
+            afficher_element("DIR", entry->d_name, deepth);
             (*dir_count)++;
             scan_dir(fullpath, total_size, unused_size, 
-                     dir_count, file_count, unused_count);
+                     dir_count, file_count, unused_count, deepth + 1);
             
         }
 
@@ -70,10 +87,10 @@ void scan_dir(const char * path,
             }
 
             if (is_unused)
-                printf("[UNUSED] -- > %s (%lld bytes)\n", entry->d_name, (long long)st.st_size);
+                afficher_element("UNUSED", entry->d_name, deepth);
             else
             {
-                printf("[FILE] -- > %s\n", entry->d_name);
+                afficher_element("FILE", entry->d_name, deepth);
                 (*file_count)++;
             }
         }
@@ -108,7 +125,7 @@ int main(int ac, char **av)
     if (ac == 2)
     {
         scan_dir(av[1], &total_size, &unused_size, &dir_count, 
-                 &file_count, &unused_count);  
+                 &file_count, &unused_count, 0);  
 
         printf("\n=======================\n");
         printf("=======================\n\n");
