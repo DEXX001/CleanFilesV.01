@@ -1,3 +1,18 @@
+/***************************************************************
+*    ░▒▓███████▓▒░░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░     *     
+*    ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░     *
+*    ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░     *
+*    ░▒▓█▓▒░░▒▓█▓▒░▒▓██████▓▒░  ░▒▓██████▓▒░ ░▒▓██████▓▒░      *
+*    ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░     *
+*    ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░     *
+*    ░▒▓███████▓▒░░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░     *
+*                                                              *
+*                     -- CleanfilesV.02 --                     *
+*                      ----20/11/2025----                      *
+*                                                              *
+***************************************************************/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,6 +21,91 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "scan.h"
+
+#define SEUIL_TAILLE (1 * 1024 * 1024)
+
+
+void afficher_resume(int dir_count, int file_count,
+                     long long total_size, long long unused_size,
+                     int unused_count)
+{
+    double valeur;
+    double valeur_unused;
+    int taille;
+    const char *unite;
+    const char *unite_unused;
+    double unused_pourcentage = 0.0;
+
+
+    printf("\n=======================");
+    printf("\n=======================\n\n");
+
+    printf("Dossiers     : %d\n", dir_count);
+    printf("Fichiers     : %d\n", file_count);
+    printf("UNUSED       : %d\n", unused_count);
+
+    if (total_size < 1024)
+    {
+        valeur = total_size;
+        unite = "B";
+    }
+
+    else if (total_size < 1024 * 1024)
+    {
+        valeur = (double)total_size / 1024;
+        unite = "KB";
+    }
+    else if(total_size < 1024 * 1024 * 1024)
+    {
+        valeur = (double)total_size / (1024 * 1024);
+        unite = "MB";
+    }
+    else
+    {
+        valeur = (double)total_size / (1024 * 1024 * 1024);
+        unite = "GB";
+    }
+
+    if (unused_size < 1024)
+    {
+        valeur_unused = unused_size;
+        unite_unused = "B";
+    }
+
+    else if (unused_size < 1024 * 1024)
+    {
+        valeur_unused = (double)unused_size / 1024;
+        unite_unused = "KB";
+    }
+    else if(unused_size < 1024 * 1024 * 1024)
+    {
+        valeur_unused = (double)unused_size / (1024 * 1024);
+        unite_unused = "MB";
+    }
+    else
+    {
+        valeur_unused = (double)unused_size / (1024 * 1024 * 1024);
+        unite_unused = "GB";
+    }
+
+    if (total_size == 0)
+    {
+        printf("Total size   : 0 B\n");
+        printf("Unused size  : 0 B\n");
+        printf("INUTILE      : 0 %%\n");
+    }
+    else
+    {
+        unused_pourcentage = (double)unused_size / (double)total_size * 100.0;
+        printf("Total size   : %.2f - %s\n", valeur, unite);
+        printf("Unused size  : %.2f - %s\n", valeur_unused, unite_unused);
+        printf("INUTILE      : %.2f %%\n", unused_pourcentage);
+    }
+
+    printf("\n======================");
+    printf("\n======================\n");
+    
+}
 
 void print_indent(int niveau)
 {
@@ -16,10 +116,45 @@ void print_indent(int niveau)
     
 }
 
-void afficher_element(const char *type, const char *nom, int niveau)
+void afficher_element(const char *type, const char *nom, int taille,int niveau)
 {
+    double valeur;
+    const char *unite;
     print_indent(niveau);
-    printf("%s : %s\n", type, nom);
+    struct stat st;
+
+    if (strcmp("DIR", type) == 0)
+    {
+        printf("DIR : %s\n", nom);
+        return;
+    }
+    
+    else
+    {
+        if (taille < 1024)
+        {
+            valeur = taille;
+            unite = "B";
+        }
+        else if (taille < 1024 * 1024)
+        {
+            valeur = (double)taille / 1024;
+            unite = "KB";
+        }
+        else if (taille < 1024 * 1024 * 1024)
+        {
+            valeur = (double)taille / (1024 * 1024);
+            unite = "MB";
+        }
+        else
+        {
+            valeur = (double)taille / (1024 * 1024 * 1024);
+            unite = "GB";
+        }
+
+        printf("%s : %s (%.2f - %s)\n", type, nom, valeur, unite);
+    }
+
 }
 
 void scan_dir(const char * path,
@@ -63,7 +198,7 @@ void scan_dir(const char * path,
 
         if (S_ISDIR(st.st_mode))
         {
-            afficher_element("DIR", entry->d_name, deepth);
+            afficher_element("DIR", entry->d_name, st.st_size,deepth);
             (*dir_count)++;
             scan_dir(fullpath, total_size, unused_size, 
                      dir_count, file_count, unused_count, deepth + 1);
@@ -75,22 +210,26 @@ void scan_dir(const char * path,
             int is_unused = 0;
             const char *look = strrchr(entry->d_name, '.');
             total_size += st.st_size;
+            long file_size = st.st_size;
 
             if (look && (strcmp(look, ".tmp") == 0 ||
                          strcmp(look, ".log") == 0 ||
                          strcmp(look, ".bak") == 0 ||
                          strcmp(look, ".old") == 0))
             {
-                is_unused = 1;
-                unused_size += st.st_size;
-                (*unused_count)++;
+                if (file_size > SEUIL_TAILLE)
+                {
+                    is_unused = 1;
+                    unused_size += st.st_size;
+                    (*unused_count)++;
+                }
             }
 
             if (is_unused)
-                afficher_element("UNUSED", entry->d_name, deepth);
+                afficher_element("UNUSED", entry->d_name, st.st_size, deepth);
             else
             {
-                afficher_element("FILE", entry->d_name, deepth);
+                afficher_element("FILE", entry->d_name, st.st_size, deepth);
                 (*file_count)++;
             }
         }
@@ -120,31 +259,15 @@ int main(int ac, char **av)
 
     printf("\nDossier cible : %s", av[1]);
     printf("\n======================\n");
+    printf("======================\n\n");
 
+    
+    scan_dir(av[1], &total_size, &unused_size, &dir_count, 
+             &file_count, &unused_count, 0);  
 
-    if (ac == 2)
-    {
-        scan_dir(av[1], &total_size, &unused_size, &dir_count, 
-                 &file_count, &unused_count, 0);  
-
-        printf("\n=======================\n");
-        printf("=======================\n\n");
-
-        printf("Dossier --> %d\n", dir_count);
-        printf("Fichier --> %d\n", file_count);
-        printf("A supprimer --> %d\n", unused_count);
-        printf("TAILLE TOTAL : %lld bytes\n", total_size);
-        printf("Inutile taille --> %lld\n", unused_size);
-
-        printf("\n=======================\n");
-        printf("=======================\n");
-        
-    }
-      
-    else
-    {
-        printf("Utilisation : ./cleanfiles <chemin_du_dossier>\n");
-    }
+    afficher_resume (dir_count, file_count,
+                     total_size, unused_size,
+                     unused_count);     
 
     return (EXIT_SUCCESS);
 }
