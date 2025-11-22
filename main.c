@@ -8,7 +8,7 @@
 *    ░▒▓███████▓▒░░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░     *
 *                                                              *
 *                     -- CleanfilesV.02 --                     *
-*                      ----20/11/2025----                      *
+*                      ----22/11/2025----                      *
 *                                                              *
 ***************************************************************/
 
@@ -22,7 +22,84 @@
 #include <unistd.h>
 #include "scan.h"
 
-#define SEUIL_TAILLE (1 * 1024 * 1024)
+#define SEUIL_TAILLE (1024 * 1024)
+
+typedef struct FileEntry
+{
+    char fullpath[1024];
+    long long size;
+    int is_dir;
+    int is_unused;
+    int deepth;
+
+}FileEntry;
+
+FileEntry *entries_tab;
+int entry_count = 0;
+int entry_capacity = 256;
+
+void afficher_top10_par_taille()
+{
+    FileEntry temp_tab[entry_count];
+
+    for (int i = 0; i < entry_count; i++)
+    {
+        temp_tab[i] = entries_tab[i];
+    }
+
+    for (int i = 0; i < entry_count - 1; i++)
+    {
+        int max_index = i;
+
+        for (int j = i + 1; i < entry_count; i++)
+        {
+            if (temp_tab[j].size > temp_tab[max_index].size)
+            {
+                max_index = j;
+            }
+            
+        }
+
+        if (max_index != 1)
+        {
+            FileEntry tmp = temp_tab[i];
+            temp_tab[i] = temp_tab[max_index];
+            temp_tab[max_index] = tmp;
+        }
+    }
+}
+
+
+void ajouter_entree(const char *fullpath,
+                    long long size,
+                    int is_dir,
+                    int is_unused,
+                    int deepth)
+{
+    if (entry_count == entry_capacity)
+    {
+        entry_capacity *= 2;
+        FileEntry *new_entries_tab = realloc(entries_tab, 
+                                             entry_capacity * sizeof(FileEntry));
+        
+        if (new_entries_tab == NULL)
+        {
+            printf("Erreur realloc !");
+            exit(EXIT_FAILURE);
+        }
+
+        entries_tab = new_entries_tab;
+    }
+
+    strcpy(entries_tab[entry_count].fullpath, fullpath);
+    entries_tab[entry_count].size = size;
+    entries_tab[entry_count].is_dir = is_dir;
+    entries_tab[entry_count].is_unused = is_unused;
+    entries_tab[entry_count].deepth = deepth;
+
+    entry_count++;
+
+}
 
 
 void afficher_resume(int dir_count, int file_count,
@@ -203,13 +280,14 @@ void scan_dir(const char * path,
             scan_dir(fullpath, total_size, unused_size, 
                      dir_count, file_count, unused_count, deepth + 1);
             
+            ajouter_entree(fullpath, st.st_size, 1, 0, deepth);
         }
 
         else if (S_ISREG(st.st_mode)) 
         {
             int is_unused = 0;
             const char *look = strrchr(entry->d_name, '.');
-            total_size += st.st_size;
+            *total_size += st.st_size;
             long file_size = st.st_size;
 
             if (look && (strcmp(look, ".tmp") == 0 ||
@@ -220,7 +298,7 @@ void scan_dir(const char * path,
                 if (file_size > SEUIL_TAILLE)
                 {
                     is_unused = 1;
-                    unused_size += st.st_size;
+                    *unused_size += st.st_size;
                     (*unused_count)++;
                 }
             }
@@ -232,6 +310,7 @@ void scan_dir(const char * path,
                 afficher_element("FILE", entry->d_name, st.st_size, deepth);
                 (*file_count)++;
             }
+            ajouter_entree(fullpath, st.st_size, 0, is_unused, deepth);
         }
         
         else
@@ -256,6 +335,11 @@ int main(int ac, char **av)
     int dir_count = 0;
     int file_count = 0;
     int unused_count = 0;
+    
+    entries_tab = malloc(entry_capacity * sizeof(FileEntry));
+
+    if (entries_tab == NULL)
+        exit(EXIT_FAILURE);
 
     printf("\nDossier cible : %s", av[1]);
     printf("\n======================\n");
@@ -263,11 +347,30 @@ int main(int ac, char **av)
 
     
     scan_dir(av[1], &total_size, &unused_size, &dir_count, 
-             &file_count, &unused_count, 0);  
+             &file_count, &unused_count, 0);
+             
+    printf("\n======= VERIFICATION DU TABLEAU =========\n\n");
+    printf("Nombre total d'entrees = %d\n", entry_count);
+
+    int max = 0;
+    
+    if (entry_count < 10)
+        max = entry_count;
+    else
+        max = 10;
+
+    for (int i = 0; i < max; i++)
+    {
+        FileEntry e = entries_tab[i];
+        printf("[%d] %s | size=%lld | dir=%d | unused=%d | depth=%d\n",
+           i, e.fullpath, e.size, e.is_dir, e.is_unused, e.deepth);
+    }
+    
 
     afficher_resume (dir_count, file_count,
                      total_size, unused_size,
                      unused_count);     
 
+    free(entries_tab);
     return (EXIT_SUCCESS);
 }

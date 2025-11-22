@@ -6,3 +6,9 @@ void scan_dir(const char * path,
               int * file_count,
               int * unused_count,
               int deepth);
+
+void ajouter_entree(const char *fullpath,
+                    long long size,
+                    int is_dir,
+                    int is_unused,
+                    int deepth);
