@@ -51,7 +51,7 @@ void afficher_top10_par_taille()
     {
         int max_index = i;
 
-        for (int j = i + 1; i < entry_count; i++)
+        for (int j = i + 1; j < entry_count; j++)
         {
             if (temp_tab[j].size > temp_tab[max_index].size)
             {
@@ -60,7 +60,7 @@ void afficher_top10_par_taille()
             
         }
 
-        if (max_index != 1)
+        if (max_index != i)
         {
             FileEntry tmp = temp_tab[i];
             temp_tab[i] = temp_tab[max_index];
