@@ -1,5 +1,5 @@
 # CleanFiles — Directory Analysis & Optimization Tool
-*Work in progress*
+*Work in progress - pause in the project*
 ------
 
 CleanFiles is a C-based system utility designed to scan folders, detect unnecessary files, and prepare automated cleanup actions.
